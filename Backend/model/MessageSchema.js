@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 
 const MessageSchema = new mongoose.Schema({
-    group_id: String,
-    user_id: String,
+    group_id: mongoose.Schema.ObjectId,
+    user_id: mongoose.Schema.ObjectId,
     message: String,
     sendTime: { type: Date, default: Date.now() }
 }, { timestamps: true })

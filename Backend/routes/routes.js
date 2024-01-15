@@ -1,19 +1,18 @@
 const express = require('express')
 const router = express.Router()
-const {} = require('../utils/TokenHandler')
-const {} = require('../controller/loginSignup')
-const {} = require('../controller/chat')
+const { verifyToken } = require('../utils/TokenHandler')
+const { loginUser, signupUser, verifyMail } = require('../controller/loginSignup')
+const { } = require('../controller/chat')
 
 
 router.route('/login')
-.post()
+    .post(loginUser)
 
 router.route('/signup')
-.post()
+    .post(signupUser)
 
 router.route('/topTrending')
-.get()
+    .get()
 
-router.route('/chat')
-.get()
-.post()
+router.route('/verify')
+    .post(verifyMail)
