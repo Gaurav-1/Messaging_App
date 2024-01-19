@@ -1,0 +1,59 @@
+.container{
+    container-type: inline-size;
+    padding: 10px;
+    width: 98.5svw;
+    height: 85svh;
+}
+
+.my_group_list{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #5e5a5a;
+    width: 27cqw;
+    height: 86cqh;
+}
+
+.operations{
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    height: fit-content;
+}
+
+.operations>.btn{
+    width: 100px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+}
+
+.btn:first-child{
+    background: rgb(23, 123, 223);
+}
+
+.btn:last-child{
+    background: #bb1212;
+}
+
+.create_group{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    width: 400px;
+    height: fit-content;
+    max-height: 500px;
+    padding: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: #a19a9a;
+    border-radius: 6px;
+    align-items: center;
+    gap: 10px;
+}
+
+.close_popup{
+    align-self: flex-end;
+    cursor: pointer;
+}

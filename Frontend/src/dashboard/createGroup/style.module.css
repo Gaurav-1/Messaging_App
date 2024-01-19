@@ -1,0 +1,39 @@
+.group{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.fields{
+    width: 250px;
+    height: 30px;
+}
+
+.users_list:empty{
+    display: none;
+}
+.users_list{
+    height: fit-content;
+    padding: 5px;
+    width: 90%;
+    overflow: auto;
+}
+
+.user_card>p{
+    display: inline;
+    width: 40%;
+}
+
+.user_card{
+    display: flex;
+    cursor: pointer;
+}
+
+.selected_user:empty{
+    display: none;
+}
+
+.selected_user{
+    display: flex;
+    height: 400px;
+}

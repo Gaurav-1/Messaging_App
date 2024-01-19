@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import Login from "./loginSignup/signin"
 import './App.css'
+import { Outlet } from 'react-router-dom'
+
+import Header from "./header"
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-    <Login />
+      <Header />
+      <Outlet />
     </>
   )
 }

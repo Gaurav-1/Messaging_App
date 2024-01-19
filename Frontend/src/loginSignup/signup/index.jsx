@@ -1,39 +1,40 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import {message} from "antd"
 
 import style from "./style.module.css";
-import person from '../../../assets/signup_person2.png';
-import { path } from "../../../constants/global"
 
 export default function Signin() {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [region, setRegion] = useState('INDIA');
   const [signuped, setSignuped] = useState(false);
   const [url, setUrl] = useState('');
   const [msg, setMsg] = useState('');
 
   function signup() {
     if (name.trim() == "") { alert("Name is required"); return; }
-    else if (email.trim() == "") { alert("Email is required"); return; }
+    else if (mail.trim() == "") { alert("Email is required"); return; }
     else if (password !== confirmPassword || password.trim() == "") {
       alert("Password doesn't matched");
       return;
     }
-    fetch(`${path}/user/signup`, {
+    console.log({name: name, mail: mail, password: password, region: region});
+    fetch(`http://localhost:3000/signup`, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ name: name, email: email, password: password }),
+      body: JSON.stringify({ name: name, mail: mail, password: password, region: region }),
     })
       .then((res) => res.json())
       .then(res => {
-        setUrl("/signin")
-        setSignuped(true);
         setMsg(res.message)
+        setUrl("/")
+        setSignuped(true);
       })
       .catch((err) => {
         alert(err.message)
@@ -55,7 +56,7 @@ export default function Signin() {
 
             <div className={style.labels}>
               <label>Email</label>
-              <input type="email" className={style.labels_input} name="useremail" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+              <input type="email" className={style.labels_input} name="useremail" placeholder="Email" onChange={(e) => setMail(e.target.value)} />
             </div>
 
             <div className={style.labels}>
@@ -67,11 +68,20 @@ export default function Signin() {
               <label>Confirm Password</label>
               <input type="password" className={style.labels_input} name="password" placeholder="Confirm Password" onChange={(e) => setConfirmPassword(e.target.value)} />
             </div>
+            
+            <div className={style.labels}>
+              <label>Region</label>
+              <select name="region" onChange={(e)=>setRegion(e.target.value)}>
+                <option value="INDIA">INDIA</option>
+                <option value="JAPAN">JAPAN</option>
+                <option value="AMERICA">AMERICA</option>
+              </select>
+            </div>
           </div>
 
           <div className={style.bottom}>
             <button type="button" className={style.signinBtn} onClick={(e) => signup()}>Sign Up</button>
-            <p>Already have account? <Link to="/signin" >Sign in</Link></p>
+            <p>Already have account? <Link to="/" >Sign in</Link></p>
           </div>
         </div>
       </div>

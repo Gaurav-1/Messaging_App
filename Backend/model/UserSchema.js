@@ -5,10 +5,6 @@ const UserSchema = new mongoose.Schema({
     mail: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     region: { type: String, required: true },
-    groupsJoined: [{
-        groupId: { type: mongoose.Schema.ObjectId},
-        groupName: { type: String}
-    }],
     posts: { type: Number, defaul: 0 },
     isVerified: { type: Boolean, default: false },
     JoinedOn: { type: Date, default: Date.now() },

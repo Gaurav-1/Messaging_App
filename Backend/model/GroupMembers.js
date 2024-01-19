@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 
 const MembersSchema = new mongoose.Schema({
-    groupId: mongoose.Schema.ObjectId,
-    userId: mongoose.Schema.ObjectId,
+    groupId: {type: mongoose.Schema.ObjectId, ref:'ward'},
+    userId: {type: mongoose.Schema.ObjectId, ref: 'janta'},
     joinedOn: {type: Date, default: Date.now()}
 }, { timestamps: true })
 

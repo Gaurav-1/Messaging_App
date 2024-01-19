@@ -1,9 +1,12 @@
+require('dotenv').config();
+
 const express = require("express")
 const app = express();
 const mongoose = require("mongoose")
 const cors = require("cors")
 const server = require('http').createServer(app)
 const { Server } = require("socket.io")
+
 
 const DB = require('./database/CreateDB')
 const UsersSchema = require('./model/UserSchema')
@@ -13,14 +16,31 @@ const MembersSchema = require('./model/GroupMembers')
 
 const routes = require('./routes/routes')
 
-const PORT = process.env.PORT || 1;
+const PORT = process.env.PORT || 3000;
 
 
-const io = new Server(server)
+const config = {
+    origin: ['http://localhost:5173'],
+    credentials: true,
+}
+
+app.use(cors(config))
+
+const io = new Server(server,{
+    cors:"http://localhost:3000"
+})
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(express.Router)
+
+app.use((req,res,next)=>{
+    console.log("Path: ",req.path);
+    console.log("Body: ",req.body);
+    next();
+})
+
+app.use('/',routes);
+
 
 try {
     DB.init()
@@ -32,16 +52,16 @@ try {
         })
         socket.on('join room',(data)=>{
             const roomId = data.groupId
-            const isGroupExists = null;
+            // const isGroupExists = null;
 
-            if(!isGroupExists){
-                //response not exists
-            }
+            // if(!isGroupExists){
+            //     //response not exists
+            // }
 
             user[socket.id]={roomId: roomId}
             socket.join(roomId)
         })
-        // socket.on('chat-msg')
+        // socket.on('chatData',response controller)
     })
     server.listen(PORT, (req, res) => {
         console.log("Hearing PORT: ", PORT);

@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import { message } from "antd"
+// import {BorderBottomOutlined} from "@ant-design/icons"
+// import {notification,Space,Divider,Button} from "antd"
+// import {NotificationArgsProps} from "antd"
+
 // import UserAuthContext from "../../../context/userAuthContext"
 
-
 import style from "./style.module.css";
-// import { path } from "../../../constants/global"
+
 
 export default function Signin() {
   // const { user, setUser } = React.useContext(UserAuthContext)
-  const [email, setEmail] = useState("");
+  const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
-  const [login, setLogin] = useState(sessionStorage.getItem('user')?.isLoggedin);
-  const [url, setUrl] = useState(sessionStorage.getItem('user')?.fallback);
+  const [login, setLogin] = useState(false);
+  const [url, setUrl] = useState('');
 
-  //setLogin(false);
   function Login() {
-    // setLogin(false);
-    if (email.trim() == "" || password.trim() == "") {
+    if (mail.trim() == "" || password.trim() == "") {
       alert("Email and password is required")
       return;
     }
@@ -25,42 +27,64 @@ export default function Signin() {
       return;
     }
 
-
-
-    fetch(`${path}/user/login`, {
+    fetch(`http://localhost:3000/login`, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ email: email, password: password }),
+      body: JSON.stringify({ mail: mail, password: password }),
     })
       .then((res) => res.json())
       .then(res => {
-        console.log("Response from ", res);
-        if(res.token){
-          localStorage.setItem("jwt",JSON.stringify(res.token))
-        }
-        if (res.url) {
-          console.log(res.url);
+        (res?.message) ? message.info(res.message) : null;
+        if (res?.token) {
+          localStorage.setItem("jwt", res.token)
+          localStorage.setItem("Current_User", res.currentUser)
+          setUrl('/dashboard')
+          setLogin(true)
           // setUser({ isLoggedin: true, userRole: res.userObj.userRole, userName: res.userObj.userName, fallback: res.url })
           // sessionStorage.setItem('user', JSON.stringify({ ...res.userObj, isLoggedin: true, fallback: res.url }))
-          setUrl(res.url)
-          setLogin(true);
         }
       })
       .catch((err) => {
         console.log(err);
       });
   }
-  // useEffect(() => {
-  //   console.log('URL CHNAGED', url);
-  //   console.log('IS Logged IN', login);
-  // }, [url]);
+
+  useEffect(() => {
+    localStorage.getItem('jwt') ? (
+      fetch('http://localhost:3000/jwtLogin', {
+        method: 'GET',
+        headers: {
+          'authorization': localStorage.getItem('jwt'),
+          'Content-type': 'application/json'
+        },
+      })
+        .then(res => res.json())
+        .then(res => {
+          if (res?.message) {
+            message.info(res.message)
+            localStorage.removeItem('jwt')
+          }
+          if (res?.token) {
+            localStorage.setItem("jwt", res.token)
+            localStorage.setItem("Current_User", res.currentUser)
+            setUrl('/dashboard')
+            setLogin(true)
+          }
+        })
+        .catch(err => {
+          message.error(err.message)
+          console.log(err)
+          localStorage.removeItem('jwt')
+        })
+    ) : null
+  }, [])
 
   return (
 
-    (login) ? <><Navigate to={url} /></>: (
+    (login) ? <><Navigate to={url} /></> : (
       <div className={style.container}>
         <div className={style.card}>
           <div className={style.top}>
@@ -69,7 +93,7 @@ export default function Signin() {
           <div className={style.middle}>
             <div className={style.labels}>
               <label htmlFor='email'>Username</label>
-              <input type="email" name="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+              <input type="email" name="email" placeholder="Email" onChange={(e) => setMail(e.target.value)} />
             </div>
             <div className={style.labels}>
               <label htmlFor='password'>Password</label>
@@ -79,9 +103,9 @@ export default function Signin() {
           <div className={style.bottom}>
             <button type="button" className={style.signinBtn} onClick={(e) => Login()} >Sign In</button>
             <p>Don't have account? <Link to="/signup">Signup</Link></p>
-            <p><Link to="/forgetPassword">Forget Password? </Link></p>
           </div>
         </div>
-      </div>)
+      </div>
+    )
   );
 }

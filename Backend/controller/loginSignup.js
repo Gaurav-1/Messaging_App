@@ -12,24 +12,59 @@ const transporter = nodemailer.createTransport({
 
 async function loginUser(req, res) {
     const data = await UserSchema.findOne({ mail: req.body.mail }).exec();
+    console.log(data);
     if (data) {
+        if (!data.isVerified) {
+            res.status(200).json({ message: "Please verify your account first" })
+            return
+        }
         if (data.password === req.body.password) {
-            res.status(200).json({ id: data.name, url: '/dashboard', message: null })
+            const obj = {
+                id: data._id,
+                name: data.name
+            }
+            const token = generateToken(obj);
+            res.status(200).json({ currentUser: data.name, token: token, message: null })
         }
         else {
-            res.status(301).json({ message: 'Invalid Mail/Password', url: null })
+            res.status(301).json({ message: 'Invalid Mail/Password' })
         }
     }
     else {
-        res.status(404).json({ message: 'User Not Exists', url: null })
+        res.status(404).json({ message: 'User Not Exists' })
+    }
+}
+
+async function jwtLogin(req, res) {
+    const data = await UserSchema.findOne({ _id: req.body.id }).exec();
+    console.log(data);
+    if (data) {
+        if (!data.isVerified) {
+            res.status(200).json({ message: "Please verify your account first" })
+            return
+        }
+        const obj = {
+            id: data._id,
+            name: data.name
+        }
+        const token = generateToken(obj);
+        res.status(200).json({ currentUser: data.name, token: token })
+    }
+    else {
+        res.status(404).json({ message: 'User Not Exists' })
     }
 }
 
 async function signupUser(req, res) {
-    const data = await UserSchema.findOne({ mail: req.body.mail });
+    const data = await UserSchema.findOne({ $or: [{ mail: req.body.mail }, { name: req.body.name }] }, { _id: 0, mail: 1, name: 1 });
     console.log(data);
     if (data) {
-        res.json({ message: 'User already exist', url: null })
+        let msg = ''
+        if (data.mail == req.body.mail) { msg += 'Mail |' }
+        if (data.name == req.body.name) {
+            msg += ' Name'
+        }
+        res.json({ message: `User ${msg} already exists` })
         return;
     }
 
@@ -37,20 +72,20 @@ async function signupUser(req, res) {
         name: req.body.name,
         mail: req.body.mail,
         password: req.body.password,
-        region: 'INDIA',
-        groupsJoined: [],
+        region: req.body.region,
     }
     UserSchema.create(newuser)
         .then((ress) => {
             try {
                 sendMail(newuser.mail);
-                res.status(200).json({ url: '/dashboard', message: 'A verification link has been send sucessfully' });
+                res.status(200).json({ message: 'A verification link has been mailed' });
             } catch (err) {
-                console.log("Mail Error: ",err);
-                res.status(301).send("An error occured Mail can't be send")
+                console.log("Mail Error: ", err);
+                res.status(301).send("An error occured verification Mail can't be send")
             }
         }).catch(err => {
-            res.json({ message: 'Signup Failed', url: null })
+            console.log("Signup Error: ", err)
+            res.json({ message: 'Signup Failed' })
             return;
         })
 }
@@ -64,11 +99,13 @@ async function sendMail(mail) {
         to: mail, // list of receivers
         subject: "Verification mail", // Subject line
         text: "Verify your mail", // plain text body
-        html: `Hello ${data.name},\n ${msg} ----  http://localhost:3000/user/verify/${data._id} \n Thanks for joining us.`, // html body
+        html: `Hello ${data.name},\n ${msg} ---- <a href='http://localhost:3000/verify/${data._id}'>Verify Now</a> \n Thanks for joining us.`, // html body
     }
     transporter.sendMail(mail_content, (err) => {
-        if (err)
+        if (err) {
+            console.log("SendMail Error: ", err);
             throw new Error(err);
+        }
         console.log('Mail send successfully');
     });
 }
@@ -84,4 +121,4 @@ async function verifyMail(req, res) {
 }
 
 
-module.exports = { loginUser, signupUser, verifyMail }
+module.exports = { loginUser, signupUser, verifyMail, jwtLogin }
