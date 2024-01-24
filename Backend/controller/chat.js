@@ -1,64 +1,48 @@
 const mongoose = require('mongoose')
-const GroupSchema = require('../model/GroupSchema')
 const MessageSchema = require('../model/MessageSchema')
+const GroupMembers = require('../model/GroupMembers')
+const UserSchema = require('../model/UserSchema')
 
 
-function insert_chat(socket){
-    return function (msg){
-        const room=msg.sendBy+'@'+msg.sendTo;
-        const room2 = msg.sendTo+'@'+msg.sendBy
-        
-        const chat_data='';
-        let existingRoom = chat_data.find(item=>Object.keys(item)[0]===room);
-        if(!existingRoom){
-            existingRoom=chat_data.find(item=>Object.keys(item)[0]===room2)
-        }
-        if(!existingRoom){
-            console.log('Room Not Exist');
-            return;
-        }
-        let whichRoom;
-        temp = chat_data.find(item=>{
-            if(Object.keys(item)[0]===room){
-                whichRoom = room;
+async function insertChat(req) {
+    try {
+        const isGroup = await GroupMembers.findOne({ userId: req.data.id, groupId: req.request.groupId }).exec()
+        console.log(isGroup)
+        if (isGroup) {
+            const msgobj = {
+                userId: req.data.id,
+                message: req.request.message,
+                sendTime: req.request.sendOn
             }
-            else if(Object.keys(item)[0]===room2){
-                whichRoom = room2;
-            }
-        })
-        
-        existingRoom[whichRoom].push({
-            sendBy: msg.sendBy,
-            msg: msg.msg
-        })
-        const res = {
-            sendBy: msg.sendBy,
-            msg: msg.msg
-        }
-        // fs.writeFileSync(dbDir+'/data.json',JSON.stringify(chat_data,null,2));
-        
-        const {roomid}=user[socket.id];
-        io.to(roomid).emit('reply',res)
-        return;
-}
-}
+            //update the schema
+            await MessageSchema.updateOne({ groupId: req.request.groupId }, { $push: { msg: msgobj }, $inc: { msgCount: 1 } }).exec()
+            await UserSchema.updateOne({ _id: req.data.id }, { $inc: { posts: 1 } }).exec()
 
-function send_chat(socket){
-    return function (msg){
-        const room=msg.sendBy+'@'+msg.sendTo;
-        const room2 = msg.sendTo+'@'+msg.sendBy
-        
-        const chat_data=JSON.parse(fs.readFileSync(dbDir+'/data.json','utf-8'));
-        let existingRoom = chat_data.find(item=>Object.keys(item)[0]===room);
-        if(!existingRoom){
-            existingRoom=chat_data.find(item=>Object.keys(item)[0]===room2)
+            return (msgobj)
+            // res.status(200).json({ message: 'Message send successfully' })
         }
-        if(!existingRoom){
-            console.log('Room Not Exist');
-            return;
+        else {
+            return ('Message not recived')
+            // res.status(401).json({warning: "You are not the member of this group"})
         }
-        
-        const {roomid}=user[socket.id];
-        io.to(roomid).emit('chat data reply',existingRoom)
+    } catch (err) {
+        console.log("Insert Chat Error: ", err);
+        return (`Error in reciving message`)
     }
+}
+
+async function loadChat(req, res) {
+    try {
+        const msg = await MessageSchema.find({ groupId: req.body.chatId }, { msg: 1, _id: 0 }).sort({ sendTime: -1 }).skip(req.body.start).limit(req.body.max).exec();
+        console.log('Messages1: ', msg[0].msg);
+        res.status(200).json({ chatMessage: msg[0].msg })
+    } catch (err) {
+        console.log('Load Message Error: ', err);
+        res.status(401).json({ error: err.message })
+    }
+}
+
+module.exports = {
+    insertChat,
+    loadChat,
 }

@@ -1,15 +1,15 @@
 const mongoose = require("mongoose")
 
 const MessageSchema = new mongoose.Schema({
-    group_id: {type: mongoose.Schema.ObjectId, ref: 'ward'},
+    groupId: {type: mongoose.Schema.ObjectId, ref: 'group'},
     msg: [{
-        user_id: {type: mongoose.Schema.ObjectId, ref: 'janta'},
+        userId: {type: mongoose.Schema.ObjectId, ref: 'user'},
         message: String,
         sendTime: { type: Date, default: Date.now() }
     }],
     msgCount: {type: Number, default: 0}
 }, { timestamps: true })
 
-const message = mongoose.model('vichar', MessageSchema, 'vichar')
+const message = mongoose.model('message', MessageSchema, 'message')
 
 module.exports = message

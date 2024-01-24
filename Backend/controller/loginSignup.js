@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 async function loginUser(req, res) {
     const data = await UserSchema.findOne({ mail: req.body.mail }).exec();
-    console.log(data);
+    // console.log(data);
     if (data) {
         if (!data.isVerified) {
             res.status(200).json({ message: "Please verify your account first" })
@@ -37,7 +37,7 @@ async function loginUser(req, res) {
 
 async function jwtLogin(req, res) {
     const data = await UserSchema.findOne({ _id: req.body.id }).exec();
-    console.log(data);
+    // console.log(data);
     if (data) {
         if (!data.isVerified) {
             res.status(200).json({ message: "Please verify your account first" })
@@ -57,7 +57,7 @@ async function jwtLogin(req, res) {
 
 async function signupUser(req, res) {
     const data = await UserSchema.findOne({ $or: [{ mail: req.body.mail }, { name: req.body.name }] }, { _id: 0, mail: 1, name: 1 });
-    console.log(data);
+    // console.log(data);
     if (data) {
         let msg = ''
         if (data.mail == req.body.mail) { msg += 'Mail |' }
@@ -101,20 +101,24 @@ async function sendMail(mail) {
         text: "Verify your mail", // plain text body
         html: `Hello ${data.name},\n ${msg} ---- <a href='http://localhost:3000/verify/${data._id}'>Verify Now</a> \n Thanks for joining us.`, // html body
     }
-    transporter.sendMail(mail_content, (err) => {
-        if (err) {
-            console.log("SendMail Error: ", err);
-            throw new Error(err);
-        }
-        console.log('Mail send successfully');
-    });
+    try {
+        transporter.sendMail(mail_content, (err) => {
+            if (err) {
+                console.log("SendMail Error: ", err);
+                throw new Error(err);
+            }
+            console.log('Mail send successfully');
+        });
+    } catch (err) {
+        console.log("Mail Sending Error: ",err)
+    }
 }
 
 async function verifyMail(req, res) {
-    await UserSchema.findByIdAndUpdate({ _id: req.params.id }, { isVerified: true }, { new: true }).then(async () => {
+    await UserSchema.findByIdAndUpdate({ _id: req.params.id }, { isVerified: true }, { new: true })
+    .then(async () => {
         const data = await UserSchema.findOne({ _id: req.params.id }).exec();
-
-        res.redirect('/dashboard');
+        res.status(200).json({message: 'Verification Cmpleted'});
     }).catch(() => {
         res.status(301).json({ message: 'Verification failed' });
     })

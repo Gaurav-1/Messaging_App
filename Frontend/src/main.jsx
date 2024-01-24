@@ -1,13 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { RouterProvider, createBrowserRouter } from "react-router-dom"
-import { AllRoutes } from "./routes/routes"
-import App from './App.jsx'
-import './index.css'
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { AllRoutes } from "./routes/routes";
+import { SocketState } from "./states/chatSocketState";
 
+import App from "./App.jsx";
+import "./index.css";
 
 const MainComp = () => {
-
   const router = createBrowserRouter([
     {
       path: "/",
@@ -16,16 +16,13 @@ const MainComp = () => {
     },
   ]);
 
-  return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  )
-}
+  return <RouterProvider router={router} />;
+};
 
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <>
-    <MainComp />
-  </>,
-)
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <SocketState>
+      <MainComp />
+    </SocketState>
+  </React.StrictMode>
+);

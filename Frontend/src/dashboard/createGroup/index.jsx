@@ -3,7 +3,7 @@ import { message } from "antd"
 import style from "./style.module.css"
 
 
-export default function CreateGroup({ IsGroupCreated }) {
+export default function CreateGroup({ IsGroupCreated, path }) {
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -12,8 +12,7 @@ export default function CreateGroup({ IsGroupCreated }) {
     const [allUsers, setAllUsers] = useState([])
 
     function MakeGroup() {
-        console.log(localStorage.getItem('jwt'));
-        fetch('http://localhost:3000/creategroup', {
+        fetch(`${path}/creategroup`, {
             method: 'POST',
             headers: {
                 'authorization': localStorage.getItem('jwt'),
@@ -22,20 +21,21 @@ export default function CreateGroup({ IsGroupCreated }) {
             body: JSON.stringify({ name, description, member })
         })
             .then(res => {
-                if (res.ok)
-                    return res.json()
-                else {
-                    message.error(res.json().message)
-                    return
-                }
+                return res.json()
+                // if (res.ok)
+                // else {
+                //     throw new Error(res.json().message)
+                //     return
+                // }
             })
             .then(res => {
                 message.success(res.message)
-                console.log("Create Response: " + res.message)  
+                console.log("Create Response: " + res.message)
                 IsGroupCreated(res.group)
             })
             .catch(err => {
-                console.log("Create Error: ", err.message)
+                message.error(err.message)
+                console.log("Create Error: ", err)
             })
     }
 
@@ -91,32 +91,25 @@ export default function CreateGroup({ IsGroupCreated }) {
             </div>
             <div className={style.selected_users}>
                 {
-                    // member.filter(ele=>{
-                    //     if (ele == allUsers.includes(ele)) {
-                    //         console.log(ele._id);
-                    //         return (<>
-                    //             <div className={style.selected_users_card} onClick={() => RemoveMembers(ele._id)}>{ele.name}</div>
-                    //         </>
-                    //         )
-                    //     }})
-
-                    //  member.forEach(ele => {
-
-                    // })
-
+                    allUsers.map(ele => {
+                        return (ele._id == JSON.stringify(member).includes(ele) ? (
+                            <div className={style.selected_users_card} onClick={() => RemoveMembers(ele._id)}>{ele.name}</div>
+                        ) : null)
+                    })
                 }
             </div>
             <div className={style.users_list}>
-                {allUsers.map(ele => {
-                    return (
-                        <>
+                {
+                    allUsers.map(ele => {
+                        console.log(ele)
+                        return (
                             <div id={ele._id} className={style.user_card} onClick={() => AddMembers(ele._id)}>
                                 <p>{ele.name}</p>
                                 <p>{ele.mail}</p>
                             </div>
-                        </>
-                    )
-                })}</div>
+                        )
+                    })
+                }</div>
             <div>
                 <button type="button" onClick={() => MakeGroup()}>Create</button>
             </div>

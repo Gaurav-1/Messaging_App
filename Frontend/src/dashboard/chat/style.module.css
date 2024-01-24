@@ -1,0 +1,37 @@
+.chat_container{
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    height: 85cqh;
+    width: 100%;
+    padding-inline: 10px;
+    justify-content: space-between;
+}
+
+.message_container{
+    display: flex;
+    flex-direction: column;
+}
+
+.message_input{
+    container-type: inline-size;
+    display: flex;
+    flex-direction: row;
+    height: min(40px,40px);
+    gap: 10px;
+}
+
+.message_input>input{
+    width: 90cqw;
+    height: 40px;
+    border: 1px solid gray;
+    border-radius: 30px;
+    padding-inline: 15px;
+}
+
+.message_input>button{
+    width: 10cqw;
+    height: 40px;
+    border: 1px solid gray;
+    border-radius: 30px;
+}

@@ -5,11 +5,11 @@ const UserSchema = new mongoose.Schema({
     mail: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     region: { type: String, required: true },
-    posts: { type: Number, defaul: 0 },
+    posts: { type: Number, default: 0 },
     isVerified: { type: Boolean, default: false },
     JoinedOn: { type: Date, default: Date.now() },
 }, { timestamps: true })
 
-const users = mongoose.model("janta", UserSchema, "janta");
+const users = mongoose.model("user", UserSchema, "user");
 
 module.exports = users;

@@ -1,3 +1,7 @@
 .group_card{
     cursor: pointer;
 }
+
+.chat_container{
+    width: 100%;
+}

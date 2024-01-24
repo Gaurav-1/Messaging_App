@@ -7,7 +7,7 @@ function authenticate(req, res, next) {
         const respone = verifyToken(token)
         if (respone) {
             req.body.id = respone.id
-            req.body.currentUser = respone.name
+            req.body.currentUser = respone.currentUser
             next();
         }
         else {
@@ -16,7 +16,7 @@ function authenticate(req, res, next) {
         }
     } catch (err) {
         console.log("Authentication Error: ", err);
-        res.status(401).json({ message: 'not a valid token' })
+        res.status(401).json({ error: 'not a valid token' })
     }
 }
 
