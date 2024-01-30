@@ -23,20 +23,21 @@ export default function dashboard() {
     function MyGroup() {
         fetch(`${path}/mygroups`, {
             method: 'GET',
+            credentials: 'include',
             headers: {
-                'authorization': localStorage.getItem('jwt'),
+                'Authorization': localStorage.getItem('jwt'),
                 'Content-type': 'application/json'
             },
         })
-            .then(res => {
+            .then(res =>{
                 // if(res.status == 200)
-                return res.json()
+                    return res.json()
                 // else
                 // console.log('Error: ',res.json())
-                // throw new Error(res.json().error)
-            })
+                    // throw new Error(res.json().error)
+                })
             .then(res => {
-                console.log('Res: ', res)
+                console.log('Res: ',res)
                 if (res?.message) {
                     message.info(res.message)
                     return;
@@ -54,7 +55,7 @@ export default function dashboard() {
 
     function TopActiveGroup() { }
 
-    function HandelChat(id, state) {
+    function HandelChat(id,state) {
         setStartChat(state)
         setChatId(id)
     }

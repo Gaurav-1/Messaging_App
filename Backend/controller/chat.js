@@ -33,9 +33,34 @@ async function insertChat(req) {
 
 async function loadChat(req, res) {
     try {
-        const msg = await MessageSchema.find({ groupId: req.body.chatId }, { msg: 1, _id: 0 }).sort({ sendTime: -1 }).skip(req.body.start).limit(req.body.max).exec();
-        console.log('Messages1: ', msg[0].msg);
-        res.status(200).json({ chatMessage: msg[0].msg })
+        let msg = await MessageSchema.aggregate([
+            { $match: { groupId: new mongoose.Types.ObjectId(req.body.chatId) } },
+            { $unwind: "$msg" },
+            { $sort: { "msg.sendTime": -1 } },
+            { $skip: req.body.pages },
+            { $limit: req.body.max },
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$msg.userId",
+                    message: "$msg.message",
+                    sendTime: "$msg.sendTime"
+                }
+            }
+        ]);
+        // console.log('T: ',messages)
+        msg = msg.map(ele => {
+            if (ele.userId == req.body.id) {
+                ele.userId = 'me'
+            }
+            else {
+                ele.userId = 'other'
+            }
+            return ele
+        })
+        // console.log(req.body.id)
+        // console.log('Messages1: ', msg[0].msg);
+        res.status(200).json({ chatMessage: msg })
     } catch (err) {
         console.log('Load Message Error: ', err);
         res.status(401).json({ error: err.message })

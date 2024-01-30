@@ -64,14 +64,21 @@ try {
             socket.join(groupId)
         })
 
-        socket.on('message', (request) => {
+        socket.on('message', async (request) => {
             console.log('Message Recived: ', request)
             const data = verifyToken(request.token)
             
             delete request.token
             
-            const response = insertChat({request,data})
+            const response = await insertChat({request,data})
             
+            if(response.userId == data.id){
+                response.userId = 'me'
+            }
+            else
+                response.userId = 'other'
+
+            console.log('Response: ',response)
             io.to(request.groupId).emit('newmessage', response)
             return;
         })

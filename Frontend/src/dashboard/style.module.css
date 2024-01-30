@@ -53,6 +53,7 @@
     border-radius: 6px;
     align-items: center;
     gap: 10px;
+    z-index: 5;
 }
 
 .close_popup{

@@ -1,0 +1,30 @@
+.me{
+    display: flex;
+    flex-direction: column;
+    width: clamp(20cqw,45cqw,45cqw);
+    align-self: flex-end;
+    background-color: #0ed10e;
+    padding: 10px;
+    border-radius: 10px 10px 0 10px;
+    overflow: none;
+    word-wrap: break-word;
+}
+
+.me>span{
+    align-self: flex-end;
+}
+
+.other{
+    display: flex;
+    flex-direction: column;
+    width: clamp(20cqw,45cqw,45cqw);
+    background-color: #0924b9;
+    padding: 10px;
+    border-radius: 10px 10px 0 10px;
+    overflow: none;
+    word-wrap: break-word;
+}
+
+.other>p{
+    align-self: flex-end;
+}

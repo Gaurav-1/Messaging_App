@@ -43,6 +43,8 @@ router.route('/loadmessages')
 router.route('/verify/:id')
     .get(verifyMail)
 
+router.route('*',(req,res)=>res.status(401).send('Bad Request'))
+
 
 
 router.all('*', (req, res) => res.status(404).json({ message: "Bad Request" }))

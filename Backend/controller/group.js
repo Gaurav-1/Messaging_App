@@ -43,9 +43,8 @@ async function addMembers(req, res) {
 
 async function myGroups(req, res) {
     try {
-        console.log("myGroup:  ")
         const data = await GroupMembers.find({ userId: req.body.id }, { _id: 1 }).populate({ path: 'groupId', select: 'name' }).exec();
-        console.log(data)
+        // console.log(data)
         if (!data) {
             res.status(404).json({ message: 'You are not a member of any group yet' })
             return

@@ -9,8 +9,13 @@
 }
 
 .message_container{
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding-block: 15px;
+    overflow-x: auto;
 }
 
 .message_input{

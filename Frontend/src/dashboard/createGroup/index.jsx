@@ -7,8 +7,8 @@ export default function CreateGroup({ IsGroupCreated, path }) {
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [member, setMember] = useState('')
     const [users, setUsers] = useState('')
+    const [member, setMember] = useState([])
     const [allUsers, setAllUsers] = useState([])
 
     function MakeGroup() {
@@ -65,8 +65,13 @@ export default function CreateGroup({ IsGroupCreated, path }) {
     }
 
     function AddMembers(newMember) {
-        if (!member.includes(newMember))
-            setMember([...member, newMember])
+        // if (!member.includes(newMember._id))
+        setMember(p => {
+            const idx = p.findIndex(i => i._id == newMember._id)
+            if (idx >= 0)
+                return p
+            return [...p, newMember]
+        })
     }
 
     function RemoveMembers(oldMember) {
@@ -89,21 +94,23 @@ export default function CreateGroup({ IsGroupCreated, path }) {
                 <input type="text" onChange={(e) => setUsers(e.target.value)} />
                 <button type='button' onClick={() => SearchUser()}>Search</button>
             </div>
-            <div className={style.selected_users}>
+            <div className={style.selected_user}>
                 {
-                    allUsers.map(ele => {
-                        return (ele._id == JSON.stringify(member).includes(ele) ? (
-                            <div className={style.selected_users_card} onClick={() => RemoveMembers(ele._id)}>{ele.name}</div>
-                        ) : null)
-                    })
+                    member.map(ele => {
+                        return (
+                            <div className={style.selected_user}>
+                                <p>{ele.name}</p>
+                            </div>
+                        )
+                    }
+                    )
                 }
             </div>
             <div className={style.users_list}>
                 {
                     allUsers.map(ele => {
-                        console.log(ele)
                         return (
-                            <div id={ele._id} className={style.user_card} onClick={() => AddMembers(ele._id)}>
+                            <div id={ele._id} className={style.user_card} onClick={() => AddMembers(ele)}>
                                 <p>{ele.name}</p>
                                 <p>{ele.mail}</p>
                             </div>

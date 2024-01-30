@@ -34,6 +34,9 @@
 }
 
 .selected_user{
-    display: flex;
-    height: 400px;
+    display: grid;
+    grid-template-columns: repeat( auto-fit, minmax(5px, 1fr) );
+    gap: 10px;
+    height: fit-content;
+    width: 100%;
 }

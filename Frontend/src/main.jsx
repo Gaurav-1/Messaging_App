@@ -20,9 +20,9 @@ const MainComp = () => {
 };
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  <>
     <SocketState>
       <MainComp />
     </SocketState>
-  </React.StrictMode>
+  </>
 );
