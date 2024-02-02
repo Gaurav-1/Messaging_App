@@ -85,8 +85,8 @@ export default function Chat({ chatId, path, CurrentUser }) {
     useEffect(() => {
         const scrollElement = document.getElementById('ChatBox')
         scrollElement.addEventListener('scroll',HandleScroll)
-        console.log('Scroll: ',scrollElement.scrollHeight)
         scrollElement.scrollTo(0,scrollElement.scrollHeight)
+        console.log('Scroll: ',scrollElement.scrollHeight)
         return ()=> scrollElement.removeEventListener('scroll',HandleScroll)
     }, [pages])
 
