@@ -4,6 +4,7 @@ const { authenticate } = require('../utils/authenticate')
 const { loginUser, signupUser, verifyMail, jwtLogin } = require('../controller/loginSignup')
 const { createGroup, searchUser, myGroups } = require('../controller/group')
 const { insertChat, loadChat } = require('../controller/chat')
+const { TopActives } = require('../controller/topActives')
 
 
 // router.get('/', (req, res) => {
@@ -43,11 +44,12 @@ router.route('/loadmessages')
 router.route('/verify/:id')
     .get(verifyMail)
 
-router.route('*',(req,res)=>res.status(401).send('Bad Request'))
+router.route('/topactives')
+    .all(authenticate)
+    .get(TopActives)
 
 
-
-router.all('*', (req, res) => res.status(404).json({ message: "Bad Request" }))
+router.route('*', (req, res) => res.status(401).send('Bad Request'))
 
 
 module.exports = router

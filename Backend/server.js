@@ -73,10 +73,10 @@ try {
             const response = await insertChat({request,data})
             
             if(response.userId == data.id){
-                response.userId = 'me'
+                response.userId = [data.currentUser]
             }
             else
-                response.userId = 'other'
+                response.userId = ['other']
 
             console.log('Response: ',response)
             io.to(request.groupId).emit('newmessage', response)

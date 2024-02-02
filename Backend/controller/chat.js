@@ -40,24 +40,23 @@ async function loadChat(req, res) {
             { $skip: req.body.pages },
             { $limit: req.body.max },
             {
+                $lookup: {
+                    from: 'user',
+                    localField: 'msg.userId',
+                    foreignField: '_id',
+                    as: 'users'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
-                    userId: "$msg.userId",
+                    userId: "$users.name",
                     message: "$msg.message",
-                    sendTime: "$msg.sendTime"
+                    sendTime: "$msg.sendTime",
                 }
             }
         ]);
-        // console.log('T: ',messages)
-        msg = msg.map(ele => {
-            if (ele.userId == req.body.id) {
-                ele.userId = 'me'
-            }
-            else {
-                ele.userId = 'other'
-            }
-            return ele
-        })
+        // console.log('msg: ',msg)
         // console.log(req.body.id)
         // console.log('Messages1: ', msg[0].msg);
         res.status(200).json({ chatMessage: msg })

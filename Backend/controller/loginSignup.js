@@ -21,7 +21,8 @@ async function loginUser(req, res) {
         if (data.password === req.body.password) {
             const obj = {
                 id: data._id,
-                name: data.name
+                name: data.name,
+                region: data.region,
             }
             const token = generateToken(obj);
             res.status(200).json({ currentUser: data.name, token: token, message: null })

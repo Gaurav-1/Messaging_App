@@ -8,6 +8,7 @@ async function createGroup(req, res) {
         name: req.body.name,
         description: req.body.description,
         adminId: req.body.id,
+        region: req.body.region,
     }
     try {
         const data = await GroupSchema.create(newGroup)
@@ -15,8 +16,8 @@ async function createGroup(req, res) {
         await GroupMembers.create({ groupId: data._id, userId: data.adminId })
         await req?.body?.member.map(ele => { GroupMembers.create({ groupId: data._id, userId: ele }) })
         const groupData = { _id: data._id, name: data.name }
-        
-        await MessageSchema.create({groupId: data._id   , msg: [], msgCount: 0})
+
+        await MessageSchema.create({ groupId: data._id, msg: [], msgCount: 0 })
         res.status(200).json({ message: "Group created successfully", group: groupData })
     } catch (err) {
         console.log("Group Creation Error: ", err);
@@ -36,9 +37,7 @@ async function searchUser(req, res) {
     res.status(200).json({ user: data })
 }
 
-async function addMembers(req, res) {
-
-}
+async function addMembers(req, res) { }
 
 
 async function myGroups(req, res) {

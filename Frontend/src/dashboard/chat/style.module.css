@@ -15,6 +15,7 @@
     gap: 10px;
     width: 100%;
     padding-block: 15px;
+    padding-inline: 5px;
     overflow-x: auto;
 }
 

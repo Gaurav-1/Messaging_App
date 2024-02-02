@@ -1,18 +1,21 @@
 import { useContext, useEffect, useState } from 'react'
+import ScrollableFeed from  'react-scrollable-feed'
 
 import style from "./style.module.css"
 import { message } from 'antd'
 // import {socket} from '../../socket'
 import { SocketContext } from '../../states/chatSocketState'
 import Messages from './messages'
+import { useNavigate } from 'react-router-dom'
 
 
-export default function Chat({ chatId, path }) {
+export default function Chat({ chatId, path, CurrentUser }) {
 
     const [messages, setMessages] = useState('')
     const [allMessages, setAllMessages] = useState([])
     const socket = useContext(SocketContext)
     const [pages, setPages] = useState(0)
+    const navigate = useNavigate();
     const max = 10;
 
     function SendMsg() {
@@ -39,17 +42,28 @@ export default function Chat({ chatId, path }) {
             },
             body: JSON.stringify({ chatId, pages, max })
         })
-            .then(res => res.json())
+            .then(async res =>{ 
+                if(res.status == 401){
+                    const err = await res.json()
+                    throw new Error(err.error)
+                }
+                else
+                    return res.json()
+            })
             .then(res => {
-                console.log(res.chatMessage.length);
                 if (res.chatMessage.length>0){
-                    console.log('sdfg')
                     res.chatMessage.reverse();
-                    setAllMessages([...allMessages,res.chatMessage])
-                    setPages(prevPages=>prevPages+max)
+                    if(pages==0)
+                        setAllMessages(res.chatMessage)
+                    else
+                        setAllMessages([...res.chatMessage,...allMessages])
+                    setPages(pages+max)
                 }
             })
-            .catch(err => message.error(err.message))
+            .catch(err =>{
+                message.error(err.message)
+                setTimeout(()=>navigate('/signout'),1000)
+            })
     }
 
     const HandleScroll = ()=>{
@@ -59,34 +73,33 @@ export default function Chat({ chatId, path }) {
         loadMsg(10)
     }
 
-    socket.on('newmessage', (res) => {
-        console.log('NewMessage', res)
-        setAllMessages([...allMessages, res])
-    })
-
     useEffect(() => {
         if (chatId) {
-            // console.log('ChatId: ', chatId)
-            // console.log('Socket: ', socket)
 
             loadMsg(0)
 
             socket.emit('openGroup', chatId)
         }
     }, [chatId])
-
+    
     useEffect(() => {
         const scrollElement = document.getElementById('ChatBox')
         scrollElement.addEventListener('scroll',HandleScroll)
+        console.log('Scroll: ',scrollElement.scrollHeight)
         scrollElement.scrollTo(0,scrollElement.scrollHeight)
         return ()=> scrollElement.removeEventListener('scroll',HandleScroll)
     }, [pages])
 
+    socket.on('newmessage', (res) => {
+        console.log('NewMessage', res)
+        setAllMessages([...allMessages, res])
+    })
 
     return (
         <div className={style.chat_container}>
+
             <div className={style.message_container} id='ChatBox'>
-                {allMessages.map(ele => <Messages prop={ele} />)}
+                {allMessages.map(ele =>{ return <Messages prop={ele} CurrentUser={CurrentUser} />})}
             </div>
             <div className={style.message_input}>
                 <input type="text" placeholder='Message' onChange={(e) => { setMessages(e.target.value) }} />

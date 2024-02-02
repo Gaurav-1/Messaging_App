@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import style from "./style.module.css"
 
@@ -8,16 +8,19 @@ import { message } from "antd"
 
 import GroupList from "./groupList"
 import Chat from "./chat"
-// import TopActive from "./topActive"
+import TopActive from "./topActive"
 
 export default function dashboard() {
     const [myGroup, setMyGroup] = useState([])
-    const [topActiveGroups, setTopActiveGroups] = useState([])
+    const [topActiveGroups, setTopActiveGroups] = useState([1])
     const [chatId, setChatId] = useState('')
     const [startChat, setStartChat] = useState(false)
     const [createGroup, setCreateGroup] = useState(false)
     const [isGroupCreated, setIsGroupCreated] = useState(false)
     const [isValid, setIsValid] = useState(false)
+    const [currentUser] = useState(localStorage.getItem('Current_User'))
+    const navigate = useNavigate()
+
     const path = import.meta.env.VITE_PATH
 
     function MyGroup() {
@@ -29,15 +32,16 @@ export default function dashboard() {
                 'Content-type': 'application/json'
             },
         })
-            .then(res =>{
-                // if(res.status == 200)
+            .then(async res => {
+                if (res.status == 401) {
+                    const err = await res.json()
+                    throw new Error(err.error)
+                }
+                else
                     return res.json()
-                // else
-                // console.log('Error: ',res.json())
-                    // throw new Error(res.json().error)
-                })
+            })
             .then(res => {
-                console.log('Res: ',res)
+                console.log('Res: ', res)
                 if (res?.message) {
                     message.info(res.message)
                     return;
@@ -49,13 +53,13 @@ export default function dashboard() {
             })
             .catch(err => {
                 message.error(err.message)
-                console.log(err);
+                setTimeout(() => navigate('/signout'), 1000)
             })
     }
 
     function TopActiveGroup() { }
 
-    function HandelChat(id,state) {
+    function HandelChat(id, state) {
         setStartChat(state)
         setChatId(id)
     }
@@ -77,26 +81,44 @@ export default function dashboard() {
         (isValid) ? <Navigate to='/' /> : (
             <>
                 <div className={style.container}>
-                    {createGroup ? (
-                        <div className={style.create_group} >
-                            <span onClick={(e) => HandelCreateGroup()} className={style.close_popup}>x</span>
-                            <CreateGroup IsGroupCreated={IsGroupCreated} path={path} />
-                        </div>) : null
+                    {
+                        createGroup ? (
+                            <div className={style.create_group} >
+                                <span onClick={(e) => HandelCreateGroup()} className={style.close_popup}>x</span>
+                                <CreateGroup IsGroupCreated={IsGroupCreated} path={path} />
+                            </div>
+                        ) : null
                     }
                     <div className={style.my_group_list}>
+
                         <div className={style.operations}>
                             <button className={style.btn} onClick={() => HandelCreateGroup()}>Create Group</button>
                         </div>
+
                         <div className={style.groups_names}>
-                            {myGroup.map(ele => <GroupList props={ele} key={ele._id} HandelChat={HandelChat} />)}
+                            {
+                                myGroup.map(ele => <GroupList props={ele} key={ele._id} HandelChat={HandelChat} />)
+                            }
                         </div>
+
                     </div>
-                    {/* <div className={style.top_active_group}>
-                        {topActiveGroups.map(ele => <TopActive props={ele} />)}
-                    </div>*/}
-                    <div className={style.chat}>
-                        {startChat ? <Chat chatId={chatId} path={path} /> : null}
-                    </div>
+
+                    
+                        {
+                            !startChat ?(<div className={style.top_active_group}>
+                                {topActiveGroups.map(ele => <TopActive prop={ele} path={path} />)}
+                                </div>) : null
+                        }
+                    
+
+                    {
+                        startChat ? (
+                            <div className={style.chat}>
+                                <Chat chatId={chatId} path={path} CurrentUser={currentUser} />
+                            </div>
+                        ) : null
+                    }
+
                 </div>
             </>
         ))

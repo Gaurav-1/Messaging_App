@@ -4,6 +4,7 @@ const GroupSchema = new mongoose.Schema({
     name: { type: String, require: true },
     description: { type: String, require: true },
     adminId: { type: mongoose.Schema.ObjectId, require: true, ref: 'user' },
+    region: {type: String, require: true},
     createdDate: { type: Date, default: Date.now() },
 }, { timestamps: true })
 

@@ -4,14 +4,15 @@ function authenticate(req, res, next) {
     const token = req.headers.authorization
     // console.log(5,token);
     try {
-        const respone = verifyToken(token)
-        if (respone) {
-            req.body.id = respone.id
-            req.body.currentUser = respone.currentUser
+        const response = verifyToken(token)
+        if (response) {
+            req.body.id = response.id
+            req.body.currentUser = response.currentUser
+            req.body.region = response.region
             next();
         }
         else {
-            res.status(401).json({ message: 'token verification failed' })
+            res.status(401).json({ error: 'token verification failed' })
             return;
         }
     } catch (err) {

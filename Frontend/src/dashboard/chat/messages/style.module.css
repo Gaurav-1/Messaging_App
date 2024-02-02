@@ -17,10 +17,10 @@
 .other{
     display: flex;
     flex-direction: column;
-    width: clamp(20cqw,45cqw,45cqw);
+    max-width: 45cqw;
     background-color: #0924b9;
     padding: 10px;
-    border-radius: 10px 10px 0 10px;
+    border-radius: 10px 10px 10px 0;
     overflow: none;
     word-wrap: break-word;
 }
